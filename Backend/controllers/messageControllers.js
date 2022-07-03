@@ -30,21 +30,21 @@ const sendMessage = asyncHandler(async (req, res) => {
   }
 
   var newMessage = {
-    sender: req.user._id,
-    content: content,
-    chat: chatId,
+    sender:req.user._id,
+    content:content,
+    chat:chatId,
   };
 
   try {
     var message = await Message.create(newMessage);
 
-    message = await message.populate("sender", "name pic").execPopulate();
-    message = await message.populate("chat").execPopulate();
+    message = await message.populate("sender", "name pic");
+    message = await message.populate("chat"); //here exact populate was creating the error because of which i was unable to semd the message
     message = await User.populate(message, {
       path: "chat.users",
       select: "name pic email",
     });
-    //to update the latest message
+
     await Chat.findByIdAndUpdate(req.body.chatId, { latestMessage: message });
 
     res.json(message);
